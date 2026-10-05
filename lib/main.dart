@@ -405,6 +405,77 @@ class ProfileForm extends StatelessWidget {
   }
 }
 
+// TAHAP 7 - NAVIGATOR PUSH DAN POP
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Home Page')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DetailPage()),
+                );
+              },
+              child: const Text('Buka Detail'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  const DetailPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detail Page')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text('Ini adalah halaman Detail.'),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Kembali'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // GREETING CARD
 class GreetingCard extends StatefulWidget {
   const GreetingCard({super.key});
@@ -813,7 +884,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      home: const DashboardPage(),
+      home: const HomePage(),
     );
   }
 }
