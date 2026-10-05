@@ -98,6 +98,8 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
     ),
     child: InkWell(
       borderRadius: BorderRadius.circular(10),
+
+      // TAP: membuka halaman detail
       onTap: () async {
         final result = await Navigator.push<bool>(
           context,
@@ -112,6 +114,18 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
           );
         }
       },
+
+      // LONG PRESS: menampilkan informasi
+      onLongPress: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${course['title']} • ${course['code']} • ${course['credits']} SKS',
+            ),
+          ),
+        );
+      },
+
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         child: Row(
@@ -147,6 +161,19 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
                   ),
                 ],
               ),
+            ),
+
+            // FAVORITE BUTTON
+            IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Favorite dapat diubah dari halaman Detail'),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.favorite_border, color: Colors.red),
+              tooltip: 'Favorite',
             ),
           ],
         ),
@@ -184,31 +211,110 @@ class CourseGrid extends StatelessWidget {
           itemBuilder: (context, index) {
             final course = courses[index] as Map<String, dynamic>;
 
+            final status = course['status'] as String;
+
+            String statusText;
+            Color statusColor;
+
+            if (status == 'done') {
+              statusText = 'Selesai';
+              statusColor = Colors.green;
+            } else if (status == 'active') {
+              statusText = 'Berjalan';
+              statusColor = Colors.orange;
+            } else {
+              statusText = 'Direncanakan';
+              statusColor = Colors.grey;
+            }
+
             return Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
                 side: const BorderSide(color: Color(0xFFD5DFE8)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      course['title'] as String,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+
+                // TAP
+                onTap: () async {
+                  final result = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CourseDetailPage(course: course),
+                    ),
+                  );
+
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Course berhasil ditambahkan ke favorite',
+                        ),
+                      ),
+                    );
+                  }
+                },
+
+                // LONG PRESS
+                onLongPress: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${course['title']} • ${course['code']} • ${course['credits']} SKS',
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      '${course['code']} • ${course['credits']} SKS',
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
-                    ),
-                  ],
+                  );
+                },
+
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        course['title'] as String,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      Text(
+                        '${course['code']} • ${course['credits']} SKS',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      Text(
+                        statusText,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      // FAVORITE ICON
+                      const Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.favorite_border,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -610,7 +716,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   late Future<Map<String, dynamic>> studentFuture;
-
+  bool isFavorite = false;
   @override
   void initState() {
     super.initState();
@@ -1054,8 +1160,43 @@ class CoursesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Courses')),
-      body: const Center(
-        child: Text('Daftar Courses', style: TextStyle(fontSize: 20)),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: loadStudentData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Gagal memuat data: ${snapshot.error}'));
+          }
+
+          final data = snapshot.data!;
+          final courses = data['courses'] as List<dynamic>;
+
+          return ListView(
+            padding: const EdgeInsets.only(bottom: 16),
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
+                child: Text(
+                  '$studentId - $studentName',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Text(
+                  'Daftar Courses',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+
+              CourseGrid(courses: courses),
+            ],
+          );
+        },
       ),
     );
   }
