@@ -439,6 +439,277 @@ class LayoutPractice extends StatelessWidget {
   }
 }
 // TAHAP 6 - SINGLECHILDSCROLLVIEW DAN KEYBOARD
+// TAHAP 16 - KASUS A: RENDERFLEX OVERFLOW
+
+class DebugCaseAPage extends StatefulWidget {
+  const DebugCaseAPage({super.key});
+
+  @override
+  State<DebugCaseAPage> createState() => _DebugCaseAPageState();
+}
+
+class _DebugCaseAPageState extends State<DebugCaseAPage> {
+  final TextEditingController commentController = TextEditingController();
+
+  bool isNavigating = false;
+
+  final items = List.generate(10, (index) => 'Data materi ${index + 1}');
+
+  @override
+  void dispose() {
+    commentController.dispose();
+    super.dispose();
+  }
+
+  // KASUS D
+  void openDetail() {
+    // Mencegah tombol ditekan berkali-kali
+    if (isNavigating) return;
+
+    setState(() {
+      isNavigating = true;
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DebugDetailPage()),
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          isNavigating = false;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tahap 16 - Debugging')),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // IDENTITAS
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 20),
+
+            // =========================
+            // KASUS A
+            // =========================
+            const Text(
+              'Kasus A - RenderFlex Overflow',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                const Icon(Icons.info),
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: Text(
+                    '$studentId - $studentName - '
+                    'teks sangat panjang untuk menguji '
+                    'RenderFlex overflow pada Row.',
+                    softWrap: true,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Solusi: Expanded membuat teks menggunakan '
+              'ruang yang tersedia sehingga tidak overflow.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+
+            const SizedBox(height: 24),
+
+            // =========================
+            // KASUS B
+            // =========================
+            const Text(
+              'Kasus B - Unbounded Height',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'ListView diperbaiki dengan batas tinggi '
+              'menggunakan SizedBox.',
+              style: TextStyle(fontSize: 12),
+            ),
+
+            const SizedBox(height: 8),
+
+            SizedBox(
+              height: 180,
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.symmetric(vertical: 3),
+                    child: ListTile(
+                      leading: const Icon(Icons.menu_book, color: Colors.blue),
+                      title: Text(items[index]),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Solusi: ListView diberi batas tinggi sehingga '
+              'tidak mendapatkan tinggi tak terbatas.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+
+            const SizedBox(height: 24),
+
+            // =========================
+            // KASUS C
+            // =========================
+            const Text(
+              'Kasus C - Keyboard Overflow',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Form dibuat scrollable agar tetap dapat '
+              'diakses ketika keyboard muncul.',
+              style: TextStyle(fontSize: 12),
+            ),
+
+            const SizedBox(height: 10),
+
+            TextField(
+              controller: commentController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Komentar',
+                hintText: 'Ketik komentar...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Input berhasil diterima')),
+                  );
+                },
+                child: const Text('Kirim'),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // =========================
+            // KASUS D
+            // =========================
+            const Text(
+              'Kasus D - Navigasi Ganda',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Tombol dicegah melakukan push berulang '
+              'ketika proses navigasi sedang berlangsung.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+
+            const SizedBox(height: 10),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isNavigating ? null : openDetail,
+                child: Text(
+                  isNavigating ? 'Membuka...' : 'Buka Halaman Detail',
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Identitas:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 4),
+
+            const Text('$studentId - $studentName'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// HALAMAN DETAIL UNTUK KASUS D
+
+class DebugDetailPage extends StatelessWidget {
+  const DebugDetailPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Debug Detail')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+
+            const Text('Halaman Detail berhasil dibuka.'),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Kembali'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class ProfileForm extends StatelessWidget {
   const ProfileForm({super.key});
@@ -1475,7 +1746,7 @@ class _CoursesTabState extends State<CoursesTab> {
                                           icon: const Icon(
                                             Icons.favorite_border,
                                             color: Colors.red,
-                                          ),
+                                          ), // TAHAP 16 - KASUS A: RENDERFLEX OVERFLOW
                                           tooltip: 'Favorite',
                                         ),
                                       ],
