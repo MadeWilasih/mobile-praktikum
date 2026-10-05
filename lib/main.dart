@@ -134,6 +134,70 @@ Widget buildCourseCard(Map<String, dynamic> course) {
   );
 }
 
+int columnsFor(double width) {
+  if (width < 600) return 1;
+  if (width < 840) return 2;
+  return 3;
+}
+
+class CourseGrid extends StatelessWidget {
+  final List<dynamic> courses;
+
+  const CourseGrid({super.key, required this.courses});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(12),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columnsFor(constraints.maxWidth),
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 2.2,
+          ),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index] as Map<String, dynamic>;
+
+            return Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: Color(0xFFD5DFE8)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      course['title'] as String,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${course['code']} • ${course['credits']} SKS',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 class CompactLayout extends StatelessWidget {
   const CompactLayout({super.key});
 
@@ -419,6 +483,20 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     const LayoutPractice(),
+                    const SizedBox(height: 10),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'Course Grid',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    CourseGrid(courses: courses),
+
                     const SizedBox(height: 10),
                     // IDENTITAS
                     Card(
