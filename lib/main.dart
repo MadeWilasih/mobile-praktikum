@@ -72,7 +72,7 @@ Widget buildStatCard(String value, String label, IconData icon) {
 
 // COURSE CARD
 
-Widget buildCourseCard(Map<String, dynamic> course) {
+Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
   final status = course['status'] as String;
 
   String statusText;
@@ -96,39 +96,52 @@ Widget buildCourseCard(Map<String, dynamic> course) {
       borderRadius: BorderRadius.circular(10),
       side: const BorderSide(color: Color(0xFFD5DFE8)),
     ),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  course['title'] as String,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => CourseDetailPage(course: course)),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    course['title'] as String,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  '${course['code']} • ${course['credits']} SKS',
-                  style: const TextStyle(fontSize: 11, color: Colors.grey),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor,
+
+                  const SizedBox(height: 5),
+
+                  Text(
+                    '${course['code']} • ${course['credits']} SKS',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: statusColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );
@@ -460,6 +473,55 @@ class DetailPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             const Text('Ini adalah halaman Detail.'),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Kembali'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// TAHAP 8 - PASSING DATA DARI LIST KE DETAIL
+
+class CourseDetailPage extends StatelessWidget {
+  final Map<String, dynamic> course;
+
+  const CourseDetailPage({super.key, required this.course});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Course Detail')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$studentId - $studentName',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 20),
+
+            Text(
+              course['title'] as String,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+
+            Text('Code: ${course['code']}'),
+            Text('Credits: ${course['credits']} SKS'),
+            Text('Status: ${course['status']}'),
 
             const SizedBox(height: 20),
 
@@ -841,7 +903,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     ...courses.map((courseData) {
                       final course = courseData as Map<String, dynamic>;
 
-                      return buildCourseCard(course);
+                      return buildCourseCard(context, course);
                     }),
 
                     const SizedBox(height: 4),
@@ -884,7 +946,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      home: const HomePage(),
+      home: const DashboardPage(),
     );
   }
 }
