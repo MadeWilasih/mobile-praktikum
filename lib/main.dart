@@ -311,6 +311,99 @@ class LayoutPractice extends StatelessWidget {
     );
   }
 }
+// TAHAP 6 - SINGLECHILDSCROLLVIEW DAN KEYBOARD
+
+class ProfileForm extends StatelessWidget {
+  const ProfileForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tahap 6 - Scrollable Content dan Keyboard',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text('$studentId - $studentName'),
+
+          const SizedBox(height: 16),
+
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Nama',
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'NIM',
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Program Studi',
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Semester',
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const TextField(
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: 'Alamat',
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const TextField(
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: 'Keterangan',
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {},
+              child: const Text('Simpan'),
+            ),
+          ),
+
+          const SizedBox(height: 300),
+        ],
+      ),
+    );
+  }
+}
 
 // GREETING CARD
 class GreetingCard extends StatefulWidget {
@@ -496,7 +589,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
 
                     CourseGrid(courses: courses),
-
+                    const ProfileForm(),
                     const SizedBox(height: 10),
                     // IDENTITAS
                     Card(
