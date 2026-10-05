@@ -98,11 +98,19 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
     ),
     child: InkWell(
       borderRadius: BorderRadius.circular(10),
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final result = await Navigator.push<bool>(
           context,
           MaterialPageRoute(builder: (_) => CourseDetailPage(course: course)),
         );
+
+        if (result == true && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Course berhasil ditambahkan ke favorite'),
+            ),
+          );
+        }
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
@@ -489,8 +497,6 @@ class DetailPage extends StatelessWidget {
   }
 }
 
-// TAHAP 8 - PASSING DATA DARI LIST KE DETAIL
-
 class CourseDetailPage extends StatelessWidget {
   final Map<String, dynamic> course;
 
@@ -524,6 +530,16 @@ class CourseDetailPage extends StatelessWidget {
             Text('Status: ${course['status']}'),
 
             const SizedBox(height: 20),
+
+            // TAHAP 9 - KIRIM HASIL TRUE
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Pilih/Favorite'),
+            ),
+
+            const SizedBox(height: 10),
 
             ElevatedButton(
               onPressed: () {
