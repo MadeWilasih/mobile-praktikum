@@ -1226,16 +1226,66 @@ class _FeedbackFormState extends State<FeedbackForm> {
     super.dispose();
   }
 
-  void submitForm() {
-    if (formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Feedback berhasil dikirim oleh ${nameController.text}',
-          ),
-        ),
-      );
+  Future<void> submitForm() async {
+    if (!formKey.currentState!.validate()) {
+      return;
     }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: const Text('Apakah kamu yakin ingin mengirim feedback?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Kirim'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Mengirim...'),
+            ],
+          ),
+        );
+      },
+    );
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    Navigator.pop(context);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Feedback berhasil dikirim oleh ${nameController.text}'),
+      ),
+    );
   }
 
   @override
