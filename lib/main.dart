@@ -943,6 +943,120 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
+// TAHAP 10 - NAVIGATION BAR
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int currentIndex = 0;
+
+  final List<Widget> pages = const [HomeTab(), CoursesTab(), ProfileTab()];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: pages[currentIndex],
+
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.school), label: 'Courses'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}
+
+class HomeTab extends StatelessWidget {
+  const HomeTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Home')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Learning Dashboard',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text('$studentId - $studentName'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CoursesTab extends StatelessWidget {
+  const CoursesTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Courses')),
+      body: const Center(
+        child: Text('Daftar Courses', style: TextStyle(fontSize: 20)),
+      ),
+    );
+  }
+}
+
+class ProfileTab extends StatelessWidget {
+  const ProfileTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircleAvatar(
+              radius: 45,
+              backgroundImage: AssetImage('assets/images/profile.jpg'),
+            ),
+
+            const SizedBox(height: 16),
+
+            const Text(
+              studentName,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 6),
+
+            const Text(
+              studentId,
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+
+            const SizedBox(height: 6),
+
+            const Text('Pendidikan Teknik Informatika'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // MY APP
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -962,7 +1076,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      home: const DashboardPage(),
+      home: const MainNavigation(),
     );
   }
 }
