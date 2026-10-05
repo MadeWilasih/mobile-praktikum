@@ -176,6 +176,78 @@ class ExpandedLayout extends StatelessWidget {
   }
 }
 
+// TAHAP 4 - EXPANDED, FLEXIBLE, DAN WRAP
+
+Widget buildBox(String text) {
+  return Container(
+    height: 80,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: Colors.blue.shade50,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.blue),
+    ),
+    child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+  );
+}
+
+class LayoutPractice extends StatelessWidget {
+  const LayoutPractice({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final skills = [
+      'Flutter',
+      'Dart',
+      'UI Design',
+      'Git',
+      'GitHub',
+      'Responsive',
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tahap 4 - Expanded, Flexible, dan Wrap',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text('$studentId - $studentName'),
+
+          const SizedBox(height: 10),
+
+          // Expanded 2 : 1
+          Row(
+            children: [
+              Expanded(flex: 2, child: buildBox('Panel A - Flex 2')),
+              const SizedBox(width: 8),
+              Expanded(child: buildBox('Panel B - Flex 1')),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          const Text('Skills:', style: TextStyle(fontWeight: FontWeight.bold)),
+
+          const SizedBox(height: 6),
+
+          // Wrap
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: skills.map((skill) => Chip(label: Text(skill))).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // GREETING CARD
 class GreetingCard extends StatefulWidget {
   const GreetingCard({super.key});
@@ -346,6 +418,8 @@ class _DashboardPageState extends State<DashboardPage> {
                         ],
                       ),
                     ),
+                    const LayoutPractice(),
+                    const SizedBox(height: 10),
                     // IDENTITAS
                     Card(
                       elevation: 0,
