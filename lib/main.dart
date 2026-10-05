@@ -943,7 +943,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-// TAHAP 10 - NAVIGATION BAR
+// TAHAP 11 - ADAPTIVE NAVIGATION
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -953,28 +953,72 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int currentIndex = 0;
+  int selectedIndex = 0;
 
   final List<Widget> pages = const [HomeTab(), CoursesTab(), ProfileTab()];
 
+  Widget buildNavigationBar() {
+    return NavigationBar(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: (index) {
+        setState(() {
+          selectedIndex = index;
+        });
+      },
+      destinations: const [
+        NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+        NavigationDestination(icon: Icon(Icons.school), label: 'Courses'),
+        NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+      ],
+    );
+  }
+
+  Widget buildNavigationRail() {
+    return NavigationRail(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: (index) {
+        setState(() {
+          selectedIndex = index;
+        });
+      },
+      labelType: NavigationRailLabelType.all,
+      destinations: const [
+        NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
+        NavigationRailDestination(
+          icon: Icon(Icons.school),
+          label: Text('Courses'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.person),
+          label: Text('Profile'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[currentIndex],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // COMPACT / MEDIUM
+        if (constraints.maxWidth < 840) {
+          return Scaffold(
+            body: pages[selectedIndex],
+            bottomNavigationBar: buildNavigationBar(),
+          );
+        }
 
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.school), label: 'Courses'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
+        // EXPANDED
+        return Scaffold(
+          body: Row(
+            children: [
+              buildNavigationRail(),
+              const VerticalDivider(width: 1),
+              Expanded(child: pages[selectedIndex]),
+            ],
+          ),
+        );
+      },
     );
   }
 }
