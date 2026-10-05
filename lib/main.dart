@@ -1153,48 +1153,342 @@ class HomeTab extends StatelessWidget {
   }
 }
 
-class CoursesTab extends StatelessWidget {
+class CoursesTab extends StatefulWidget {
   const CoursesTab({super.key});
+
+  @override
+  State<CoursesTab> createState() => _CoursesTabState();
+}
+
+class _CoursesTabState extends State<CoursesTab> {
+  late Future<Map<String, dynamic>> courseFuture;
+
+  final TextEditingController searchController = TextEditingController();
+
+  String searchText = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    courseFuture = loadStudentData();
+
+    searchController.addListener(() {
+      setState(() {
+        searchText = searchController.text.toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Courses')),
+      backgroundColor: const Color(0xFFF7F8FC),
+
+      appBar: AppBar(
+        title: const Text(
+          'Course Explorer',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+
       body: FutureBuilder<Map<String, dynamic>>(
-        future: loadStudentData(),
+        future: courseFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Gagal memuat data: ${snapshot.error}'));
+            return Center(
+              child: Text('Gagal memuat course: ${snapshot.error}'),
+            );
           }
 
           final data = snapshot.data!;
           final courses = data['courses'] as List<dynamic>;
 
-          return ListView(
-            padding: const EdgeInsets.only(bottom: 16),
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
-                child: Text(
-                  '$studentId - $studentName',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ),
+          final filteredCourses = courses.where((courseData) {
+            final course = courseData as Map<String, dynamic>;
 
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
-                child: Text(
-                  'Daftar Courses',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
+            final title = (course['title'] as String).toLowerCase();
+            final code = (course['code'] as String).toLowerCase();
 
-              CourseGrid(courses: courses),
-            ],
+            return title.contains(searchText) || code.contains(searchText);
+          }).toList();
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isExpanded = constraints.maxWidth >= 840;
+
+              return Column(
+                children: [
+                  // IDENTITAS
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '$studentId - $studentName',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF183A5A),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // SEARCH
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search courses...',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searchText.isNotEmpty
+                            ? IconButton(
+                                onPressed: () {
+                                  searchController.clear();
+                                },
+                                icon: const Icon(Icons.clear),
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: const Color(0xFFEAF2F9),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // JUMLAH COURSE
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${filteredCourses.length} course tersedia',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // COURSE LIST / GRID
+                  Expanded(
+                    child: filteredCourses.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Course tidak ditemukan',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : GridView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: isExpanded ? 2 : 1,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: isExpanded ? 2.8 : 3.2,
+                                ),
+                            itemCount: filteredCourses.length,
+                            itemBuilder: (context, index) {
+                              final course =
+                                  filteredCourses[index]
+                                      as Map<String, dynamic>;
+
+                              final status = course['status'] as String;
+
+                              String statusText;
+                              Color statusColor;
+
+                              if (status == 'done') {
+                                statusText = 'Completed';
+                                statusColor = Colors.green;
+                              } else if (status == 'active') {
+                                statusText = 'Active';
+                                statusColor = Colors.teal;
+                              } else {
+                                statusText = 'Planned';
+                                statusColor = Colors.orange;
+                              }
+
+                              return Card(
+                                elevation: 0,
+                                margin: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: const BorderSide(
+                                    color: Color(0xFFD0DCE6),
+                                  ),
+                                ),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+
+                                  // TAP COURSE
+                                  onTap: () async {
+                                    final result = await Navigator.push<bool>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            CourseDetailPage(course: course),
+                                      ),
+                                    );
+
+                                    if (result == true && context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Course berhasil ditambahkan ke favorite',
+                                              ),
+                                            ),
+                                          );
+                                    }
+                                  },
+
+                                  // LONG PRESS
+                                  onLongPress: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            course['title'] as String,
+                                          ),
+                                          content: Text(
+                                            'Code: ${course['code']}\n'
+                                            'Credits: ${course['credits']} SKS\n'
+                                            'Status: $statusText',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Tutup'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(14),
+                                    child: Row(
+                                      children: [
+                                        // ICON
+                                        Container(
+                                          width: 46,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.shade50,
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.school,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+
+                                        const SizedBox(width: 12),
+
+                                        // COURSE INFO
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                course['title'] as String,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF183A5A),
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 5),
+
+                                              Text(
+                                                '${course['code']} • ${course['credits']} SKS',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 5),
+
+                                              Text(
+                                                statusText,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: statusColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        // FAVORITE
+                                        IconButton(
+                                          onPressed: () {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  '${course['title']} dipilih sebagai favorite',
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.favorite_border,
+                                            color: Colors.red,
+                                          ),
+                                          tooltip: 'Favorite',
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
