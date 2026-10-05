@@ -1202,6 +1202,134 @@ class CoursesTab extends StatelessWidget {
   }
 }
 
+// TAHAP 13 - FORM INPUT DAN VALIDASI
+
+class FeedbackForm extends StatefulWidget {
+  const FeedbackForm({super.key});
+
+  @override
+  State<FeedbackForm> createState() => _FeedbackFormState();
+}
+
+class _FeedbackFormState extends State<FeedbackForm> {
+  final formKey = GlobalKey<FormState>();
+
+  final nameController = TextEditingController(text: studentName);
+  final nimController = TextEditingController(text: studentId);
+  final commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    nimController.dispose();
+    commentController.dispose();
+    super.dispose();
+  }
+
+  void submitForm() {
+    if (formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Feedback berhasil dikirim oleh ${nameController.text}',
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Tahap 13 - Form Feedback',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 6),
+
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextFormField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Nama',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Nama wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            TextFormField(
+              controller: nimController,
+              decoration: const InputDecoration(
+                labelText: 'NIM',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'NIM wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            TextFormField(
+              controller: commentController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Komentar',
+                hintText: 'Masukkan komentar minimal 5 karakter',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Komentar wajib diisi';
+                }
+
+                if (value.trim().length < 5) {
+                  return 'Komentar minimal 5 karakter';
+                }
+
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: submitForm,
+                child: const Text('Kirim Feedback'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
 
@@ -1209,10 +1337,11 @@ class ProfileTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 24),
+
             const CircleAvatar(
               radius: 45,
               backgroundImage: AssetImage('assets/images/profile.jpg'),
@@ -1235,6 +1364,14 @@ class ProfileTab extends StatelessWidget {
             const SizedBox(height: 6),
 
             const Text('Pendidikan Teknik Informatika'),
+
+            const SizedBox(height: 20),
+
+            const Divider(),
+
+            const FeedbackForm(),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
