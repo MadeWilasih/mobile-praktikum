@@ -134,6 +134,48 @@ Widget buildCourseCard(Map<String, dynamic> course) {
   );
 }
 
+class CompactLayout extends StatelessWidget {
+  const CompactLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(12),
+      color: Colors.blue.shade50,
+      child: const Text('Compact Layout\n2415051088 - Made Wilasih'),
+    );
+  }
+}
+
+class MediumLayout extends StatelessWidget {
+  const MediumLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(12),
+      color: Colors.green.shade50,
+      child: const Text('Medium Layout\n2415051088 - Made Wilasih'),
+    );
+  }
+}
+
+class ExpandedLayout extends StatelessWidget {
+  const ExpandedLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(12),
+      color: Colors.orange.shade50,
+      child: const Text('Expanded Layout\n2415051088 - Made Wilasih'),
+    );
+  }
+}
+
 // GREETING CARD
 class GreetingCard extends StatefulWidget {
   const GreetingCard({super.key});
@@ -200,6 +242,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
 
@@ -278,6 +322,30 @@ class _DashboardPageState extends State<DashboardPage> {
                 return ListView(
                   padding: const EdgeInsets.only(bottom: 14),
                   children: [
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth < 600) {
+                          return const CompactLayout();
+                        } else if (constraints.maxWidth < 840) {
+                          return const MediumLayout();
+                        } else {
+                          return const ExpandedLayout();
+                        }
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('$studentId - $studentName'),
+                          Text('Width: ${size.width.toStringAsFixed(0)}'),
+                          Text('Height: ${size.height.toStringAsFixed(0)}'),
+                          Text('Orientation: $orientation'),
+                          Text(size.width < 600 ? 'Compact' : 'Wide'),
+                        ],
+                      ),
+                    ),
                     // IDENTITAS
                     Card(
                       elevation: 0,
@@ -343,6 +411,20 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
 
+                    // TAHAP 1 - CONTAINER HARD-CODED
+                    Container(
+                      width: 500,
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      color: Colors.orange.shade100,
+                      child: Text(
+                        '$studentId - $studentName',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
                     // TOPIK YANG SEDANG DIPELAJARI
                     if (activeCourse != null)
                       Padding(
