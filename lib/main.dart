@@ -874,10 +874,17 @@ class DetailPage extends StatelessWidget {
   }
 }
 
-class CourseDetailPage extends StatelessWidget {
+class CourseDetailPage extends StatefulWidget {
   final Map<String, dynamic> course;
 
   const CourseDetailPage({super.key, required this.course});
+
+  @override
+  State<CourseDetailPage> createState() => _CourseDetailPageState();
+}
+
+class _CourseDetailPageState extends State<CourseDetailPage> {
+  bool isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -896,24 +903,28 @@ class CourseDetailPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             Text(
-              course['title'] as String,
+              widget.course['title'] as String,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 12),
 
-            Text('Code: ${course['code']}'),
-            Text('Credits: ${course['credits']} SKS'),
-            Text('Status: ${course['status']}'),
+            Text('Code: ${widget.course['code']}'),
+            Text('Credits: ${widget.course['credits']} SKS'),
+            Text('Status: ${widget.course['status']}'),
 
             const SizedBox(height: 20),
 
-            // TAHAP 9 - KIRIM HASIL TRUE
+            // LOCAL STATE - FAVORITE
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context, true);
+                setState(() {
+                  isFavorite = !isFavorite;
+                });
               },
-              child: const Text('Pilih/Favorite'),
+              child: Text(
+                isFavorite ? '❤️ Sudah Favorite' : '♡ Pilih/Favorite',
+              ),
             ),
 
             const SizedBox(height: 10),
