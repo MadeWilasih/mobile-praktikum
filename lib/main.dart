@@ -1444,7 +1444,7 @@ class CoursesTab extends StatefulWidget {
 
 class _CoursesTabState extends State<CoursesTab> {
   late Future<Map<String, dynamic>> courseFuture;
-
+  bool favorites = false;
   final TextEditingController searchController = TextEditingController();
 
   String searchText = '';
@@ -1555,6 +1555,36 @@ class _CoursesTabState extends State<CoursesTab> {
 
                   const SizedBox(height: 12),
 
+                  // TAHAP 2 - SHARED STATE DARI PARENT KE DUA CHILD
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CourseFavoriteStatus(
+                          favorites: favorites,
+                          onToggle: () {
+                            setState(() {
+                              favorites = !favorites;
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        CourseFavoriteButton(
+                          favorites: favorites,
+                          onToggle: () {
+                            setState(() {
+                              favorites = !favorites;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
                   // JUMLAH COURSE
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1778,7 +1808,50 @@ class _CoursesTabState extends State<CoursesTab> {
   }
 }
 
-// TAHAP 13 - FORM INPUT DAN VALIDASI
+class CourseFavoriteStatus extends StatelessWidget {
+  final bool favorites;
+  final VoidCallback onToggle;
+
+  const CourseFavoriteStatus({
+    super.key,
+    required this.favorites,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          favorites ? Icons.favorite : Icons.favorite_border,
+          color: Colors.red,
+        ),
+        const SizedBox(width: 6),
+        Text(favorites ? 'Favorite aktif' : 'Belum favorite'),
+        IconButton(onPressed: onToggle, icon: const Icon(Icons.refresh)),
+      ],
+    );
+  }
+}
+
+class CourseFavoriteButton extends StatelessWidget {
+  final bool favorites;
+  final VoidCallback onToggle;
+
+  const CourseFavoriteButton({
+    super.key,
+    required this.favorites,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onToggle,
+      child: Text(favorites ? 'Hapus Favorite' : 'Tambah Favorite'),
+    );
+  }
+}
 
 class FeedbackForm extends StatefulWidget {
   const FeedbackForm({super.key});
