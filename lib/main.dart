@@ -1442,12 +1442,18 @@ class CoursesTab extends StatefulWidget {
   State<CoursesTab> createState() => _CoursesTabState();
 }
 
+//Made Wilasih - 2415051088//
 class _CoursesTabState extends State<CoursesTab> {
   late Future<Map<String, dynamic>> courseFuture;
   bool favorites = false;
   final TextEditingController searchController = TextEditingController();
 
   String searchText = '';
+  void _toggleFavorite() {
+    setState(() {
+      favorites = !favorites;
+    });
+  }
 
   @override
   void initState() {
@@ -1555,7 +1561,7 @@ class _CoursesTabState extends State<CoursesTab> {
 
                   const SizedBox(height: 12),
 
-                  // TAHAP 2 - SHARED STATE DARI PARENT KE DUA CHILD
+                  // TAHAP 3 - LIFTING STATE UP
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
@@ -1563,22 +1569,12 @@ class _CoursesTabState extends State<CoursesTab> {
                       children: [
                         CourseFavoriteStatus(
                           favorites: favorites,
-                          onToggle: () {
-                            setState(() {
-                              favorites = !favorites;
-                            });
-                          },
+                          onToggle: _toggleFavorite,
                         ),
-
                         const SizedBox(height: 8),
-
                         CourseFavoriteButton(
                           favorites: favorites,
-                          onToggle: () {
-                            setState(() {
-                              favorites = !favorites;
-                            });
-                          },
+                          onToggle: _toggleFavorite,
                         ),
                       ],
                     ),
