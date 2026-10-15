@@ -1446,6 +1446,7 @@ class CoursesTab extends StatefulWidget {
 class _CoursesTabState extends State<CoursesTab> {
   late Future<Map<String, dynamic>> courseFuture;
   bool favorites = false;
+  final ValueNotifier<int> favoriteCounter = ValueNotifier<int>(0);
   final TextEditingController searchController = TextEditingController();
 
   String searchText = '';
@@ -1468,9 +1469,11 @@ class _CoursesTabState extends State<CoursesTab> {
     });
   }
 
+  //Made Wilasih - 2415051088
   @override
   void dispose() {
     searchController.dispose();
+    favoriteCounter.dispose();
     super.dispose();
   }
 
@@ -1580,6 +1583,31 @@ class _CoursesTabState extends State<CoursesTab> {
                     ),
                   ),
 
+                  //Made Wilasih - 2415051088
+                  const SizedBox(height: 12),
+                  ValueListenableBuilder<int>(
+                    valueListenable: favoriteCounter,
+                    builder: (context, value, child) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('$studentId - $studentName'),
+                          Text(
+                            'Jumlah favorite: $value',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              favoriteCounter.value++;
+                            },
+                            child: const Text('Tambah jumlah'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 12),
                   const SizedBox(height: 12),
                   // JUMLAH COURSE
                   Padding(
