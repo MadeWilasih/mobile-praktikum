@@ -129,17 +129,22 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
                 ],
               ),
             ),
-
-            // FAVORITE BUTTON
+            //Made Wilasih - 2415051088
+            // FAVORITE BUTTON - TAHAP 7
             IconButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Favorite dapat diubah dari halaman Detail'),
-                  ),
+                context.read<CourseState>().toggleFavorite(
+                  course['code'] as String,
                 );
               },
-              icon: const Icon(Icons.favorite_border, color: Colors.red),
+              icon: Icon(
+                context.watch<CourseState>().favorites.contains(
+                      course['code'] as String,
+                    )
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: Colors.red,
+              ),
               tooltip: 'Favorite',
             ),
           ],
@@ -1515,7 +1520,7 @@ class _CoursesTabState extends State<CoursesTab> {
 
             return title.contains(searchText) || code.contains(searchText);
           }).toList();
-
+          final courseState = context.watch<CourseState>();
           return LayoutBuilder(
             builder: (context, constraints) {
               final isExpanded = constraints.maxWidth >= 840;
@@ -1551,9 +1556,10 @@ class _CoursesTabState extends State<CoursesTab> {
                                 onPressed: () {
                                   searchController.clear();
                                 },
-                                icon: const Icon(Icons.clear),
+                                icon: const Icon(Icons.close),
                               )
                             : null,
+
                         filled: true,
                         fillColor: const Color(0xFFEAF2F9),
                         border: OutlineInputBorder(
@@ -1611,6 +1617,24 @@ class _CoursesTabState extends State<CoursesTab> {
 
                   const SizedBox(height: 12),
                   const SizedBox(height: 12),
+                  // JUMLAH FAVORITE
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Jumlah favorite: ${courseState.favorites.length}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // JUMLAH COURSE
                   // JUMLAH COURSE
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
