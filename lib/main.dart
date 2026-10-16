@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:provider/provider.dart';
+
+import 'course_state.dart';
 
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
@@ -29,48 +32,12 @@ Future<Map<String, dynamic>> loadStudentData() async {
   return jsonDecode(jsonString) as Map<String, dynamic>;
 }
 
+//Made WIlasih - 2415051088
 void main() {
-  runApp(const MyApp());
-}
-
-// SUMMARY CARD
-
-Widget buildStatCard(String value, String label, IconData icon) {
-  return Expanded(
-    child: Card(
-      elevation: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(color: Color(0xFFD5DFE8)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
-        child: Column(
-          children: [
-            Icon(icon, size: 20, color: Colors.blue),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    ),
+  runApp(
+    ChangeNotifierProvider(create: (_) => CourseState(), child: const MyApp()),
   );
 }
-
-// COURSE CARD
 
 Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
   final status = course['status'] as String;
@@ -1331,6 +1298,41 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
+// SUMMARY CARD
+Widget buildStatCard(String value, String label, IconData icon) {
+  return Expanded(
+    child: Card(
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: Color(0xFFD5DFE8)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+        child: Column(
+          children: [
+            Icon(icon, size: 20, color: Colors.blue),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 // TAHAP 11 - ADAPTIVE NAVIGATION
 
 class MainNavigation extends StatefulWidget {
