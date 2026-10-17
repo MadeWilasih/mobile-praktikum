@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'course_state.dart';
 import 'models/course.dart';
+import 'services/course_service.dart';
 
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
@@ -1453,6 +1454,7 @@ class CoursesTab extends StatefulWidget {
 //Made Wilasih - 2415051088//
 class _CoursesTabState extends State<CoursesTab> {
   late Future<Map<String, dynamic>> courseFuture;
+  final CourseService courseService = CourseService();
   bool favorites = false;
   final ValueNotifier<int> favoriteCounter = ValueNotifier<int>(0);
   final TextEditingController searchController = TextEditingController();
@@ -1464,9 +1466,18 @@ class _CoursesTabState extends State<CoursesTab> {
     });
   }
 
+  //Made Wilasih - 2415051088
   @override
   void initState() {
     super.initState();
+    CourseService()
+        .loadCourses()
+        .then((courses) {
+          debugPrint('Jumlah course dari CourseService: ${courses.length}');
+        })
+        .catchError((error) {
+          debugPrint('Gagal memuat course dari service: $error');
+        });
 
     courseFuture = loadStudentData();
 
