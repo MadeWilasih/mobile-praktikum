@@ -8,6 +8,7 @@ import 'course_state.dart';
 import 'models/course.dart';
 import 'services/course_service.dart';
 import 'repositories/course_repository.dart';
+import 'course_provider.dart';
 
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
@@ -37,9 +38,14 @@ Future<Map<String, dynamic>> loadStudentData() async {
 
 //Made WIlasih - 2415051088
 void main() {
+  final repository = CourseRepository(CourseService());
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => CourseState(CourseRepository(CourseService())),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CourseState(repository)),
+        ChangeNotifierProvider(create: (_) => CourseProvider(repository)),
+      ],
       child: const MyApp(),
     ),
   );
