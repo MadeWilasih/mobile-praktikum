@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'course_state.dart';
 import 'models/course.dart';
 import 'services/course_service.dart';
+import 'repositories/course_repository.dart';
 
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
@@ -37,12 +38,15 @@ Future<Map<String, dynamic>> loadStudentData() async {
 //Made WIlasih - 2415051088
 void main() {
   runApp(
-    ChangeNotifierProvider(create: (_) => CourseState(), child: const MyApp()),
+    ChangeNotifierProvider(
+      create: (_) => CourseState(CourseRepository(CourseService())),
+      child: const MyApp(),
+    ),
   );
 }
 
-Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
-  final status = course['status'] as String;
+Widget buildCourseCard(BuildContext context, Course course) {
+  final status = course.status;
 
   String statusText;
   Color statusColor;
@@ -89,7 +93,7 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${course['title']} • ${course['code']} • ${course['credits']} SKS',
+              '${course.title} • ${course.code} • ${course.credits} SKS',
             ),
           ),
         );
@@ -104,22 +108,18 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course['title'] as String,
+                    course.title,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
                   Text(
-                    '${course['code']} • ${course['credits']} SKS',
+                    '${course.code} • ${course.credits} SKS',
                     style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
-
                   const SizedBox(height: 4),
-
                   Text(
                     statusText,
                     style: TextStyle(
@@ -131,18 +131,14 @@ Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
                 ],
               ),
             ),
-            //Made Wilasih - 2415051088
-            // FAVORITE BUTTON - TAHAP 7
+
+            // FAVORITE BUTTON
             IconButton(
               onPressed: () {
-                context.read<CourseState>().toggleFavorite(
-                  course['code'] as String,
-                );
+                context.read<CourseState>().toggleFavorite(course.code);
               },
               icon: Icon(
-                context.watch<CourseState>().favorites.contains(
-                      course['code'] as String,
-                    )
+                context.watch<CourseState>().favorites.contains(course.code)
                     ? Icons.favorite
                     : Icons.favorite_border,
                 color: Colors.red,
@@ -163,7 +159,7 @@ int columnsFor(double width) {
 }
 
 class CourseGrid extends StatelessWidget {
-  final List<dynamic> courses;
+  final List<Course> courses;
 
   const CourseGrid({super.key, required this.courses});
 
@@ -183,9 +179,9 @@ class CourseGrid extends StatelessWidget {
           ),
           itemCount: courses.length,
           itemBuilder: (context, index) {
-            final course = courses[index] as Map<String, dynamic>;
+            final course = courses[index];
 
-            final status = course['status'] as String;
+            final status = course.status;
 
             String statusText;
             Color statusColor;
@@ -235,7 +231,7 @@ class CourseGrid extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        '${course['title']} • ${course['code']} • ${course['credits']} SKS',
+                        '${course.title} • ${course.code} • ${course.credits} SKS',
                       ),
                     ),
                   );
@@ -248,7 +244,7 @@ class CourseGrid extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        course['title'] as String,
+                        course.title,
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -258,7 +254,7 @@ class CourseGrid extends StatelessWidget {
                       const SizedBox(height: 5),
 
                       Text(
-                        '${course['code']} • ${course['credits']} SKS',
+                        '${course.code} • ${course.credits} SKS',
                         style: const TextStyle(
                           fontSize: 11,
                           color: Colors.grey,
@@ -849,7 +845,7 @@ class DetailPage extends StatelessWidget {
 }
 
 class CourseDetailPage extends StatefulWidget {
-  final Map<String, dynamic> course;
+  final Course course;
 
   const CourseDetailPage({super.key, required this.course});
 
@@ -877,15 +873,15 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             const SizedBox(height: 20),
 
             Text(
-              widget.course['title'] as String,
+              widget.course.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 12),
 
-            Text('Code: ${widget.course['code']}'),
-            Text('Credits: ${widget.course['credits']} SKS'),
-            Text('Status: ${widget.course['status']}'),
+            Text('Code: ${widget.course.code}'),
+            Text('Credits: ${widget.course.credits} SKS'),
+            Text('Status: ${widget.course.status}'),
 
             const SizedBox(height: 20),
 
@@ -1033,12 +1029,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 final courses = data['courses'] as List<dynamic>;
 
-                // TOTAL SKS
-                final totalCredits = courses.fold<int>(
-                  0,
-                  (sum, course) => sum + (course['credits'] as int),
-                );
-
                 // JUMLAH YANG SELESAI
                 final completedCourses = courses
                     .where((course) => course['status'] == 'done')
@@ -1099,7 +1089,15 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
 
-                    CourseGrid(courses: courses),
+                    CourseGrid(
+                      courses: courses
+                          .map(
+                            (rawCourse) => Course.fromJson(
+                              rawCourse as Map<String, dynamic>,
+                            ),
+                          )
+                          .toList(),
+                    ),
                     const ProfileForm(),
                     const SizedBox(height: 10),
                     // IDENTITAS
@@ -1278,9 +1276,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(height: 3),
 
                     // LIST 5 TOPIK
-                    ...courses.map((courseData) {
-                      final course = courseData as Map<String, dynamic>;
-
+                    ...courses.map((rawCourse) {
+                      final course = Course.fromJson(
+                        rawCourse as Map<String, dynamic>,
+                      );
                       return buildCourseCard(context, course);
                     }),
 
@@ -1453,7 +1452,7 @@ class CoursesTab extends StatefulWidget {
 
 //Made Wilasih - 2415051088//
 class _CoursesTabState extends State<CoursesTab> {
-  late Future<Map<String, dynamic>> courseFuture;
+  late Future<List<Course>> courseFuture;
   final CourseService courseService = CourseService();
   bool favorites = false;
   final ValueNotifier<int> favoriteCounter = ValueNotifier<int>(0);
@@ -1470,16 +1469,8 @@ class _CoursesTabState extends State<CoursesTab> {
   @override
   void initState() {
     super.initState();
-    CourseService()
-        .loadCourses()
-        .then((courses) {
-          debugPrint('Jumlah course dari CourseService: ${courses.length}');
-        })
-        .catchError((error) {
-          debugPrint('Gagal memuat course dari service: $error');
-        });
 
-    courseFuture = loadStudentData();
+    courseFuture = context.read<CourseState>().getCourses();
 
     searchController.addListener(() {
       setState(() {
@@ -1508,7 +1499,7 @@ class _CoursesTabState extends State<CoursesTab> {
         ),
       ),
 
-      body: FutureBuilder<Map<String, dynamic>>(
+      body: FutureBuilder<List<Course>>(
         future: courseFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -1521,17 +1512,17 @@ class _CoursesTabState extends State<CoursesTab> {
             );
           }
           //Made Wilasih - 2415051088
-          final data = snapshot.data!;
-          final courses = data['courses'] as List<dynamic>;
-          final exampleCourse = Course.fromJson(
-            courses.first as Map<String, dynamic>,
-          );
+          final courses = snapshot.data ?? <Course>[];
 
-          final filteredCourses = courses.where((courseData) {
-            final course = courseData as Map<String, dynamic>;
+          if (courses.isEmpty) {
+            return const Center(child: Text('Belum ada data course.'));
+          }
 
-            final title = (course['title'] as String).toLowerCase();
-            final code = (course['code'] as String).toLowerCase();
+          final exampleCourse = courses.first;
+
+          final filteredCourses = courses.where((course) {
+            final title = course.title.toLowerCase();
+            final code = course.code.toLowerCase();
 
             return title.contains(searchText) || code.contains(searchText);
           }).toList();
@@ -1706,11 +1697,9 @@ class _CoursesTabState extends State<CoursesTab> {
                                 ),
                             itemCount: filteredCourses.length,
                             itemBuilder: (context, index) {
-                              final course =
-                                  filteredCourses[index]
-                                      as Map<String, dynamic>;
+                              final course = filteredCourses[index];
 
-                              final status = course['status'] as String;
+                              final status = course.status;
 
                               String statusText;
                               Color statusColor;
@@ -1766,12 +1755,10 @@ class _CoursesTabState extends State<CoursesTab> {
                                       context: context,
                                       builder: (_) {
                                         return AlertDialog(
-                                          title: Text(
-                                            course['title'] as String,
-                                          ),
+                                          title: Text(course.title),
                                           content: Text(
-                                            'Code: ${course['code']}\n'
-                                            'Credits: ${course['credits']} SKS\n'
+                                            'Code: ${course.code}\n'
+                                            'Credits: ${course.credits} SKS\n'
                                             'Status: $statusText',
                                           ),
                                           actions: [
@@ -1818,7 +1805,7 @@ class _CoursesTabState extends State<CoursesTab> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                course['title'] as String,
+                                                course.title,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
@@ -1831,7 +1818,7 @@ class _CoursesTabState extends State<CoursesTab> {
                                               const SizedBox(height: 5),
 
                                               Text(
-                                                '${course['code']} • ${course['credits']} SKS',
+                                                '${course.code} • ${course.credits} SKS',
                                                 style: const TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.grey,
@@ -1860,7 +1847,7 @@ class _CoursesTabState extends State<CoursesTab> {
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  '${course['title']} dipilih sebagai favorite',
+                                                  '${course.title} dipilih sebagai favorite',
                                                 ),
                                               ),
                                             );
