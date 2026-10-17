@@ -10,6 +10,7 @@ class CourseState extends ChangeNotifier {
   CourseState(this.repository);
 
   final Set<String> favorites = {};
+  bool isFavorite(String code) => favorites.contains(code);
 
   Future<List<Course>> getCourses() {
     return repository.getCourses();

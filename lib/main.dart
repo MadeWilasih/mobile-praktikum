@@ -850,20 +850,16 @@ class DetailPage extends StatelessWidget {
   }
 }
 
-class CourseDetailPage extends StatefulWidget {
+class CourseDetailPage extends StatelessWidget {
   final Course course;
 
   const CourseDetailPage({super.key, required this.course});
 
   @override
-  State<CourseDetailPage> createState() => _CourseDetailPageState();
-}
-
-class _CourseDetailPageState extends State<CourseDetailPage> {
-  bool isFavorite = false;
-
-  @override
   Widget build(BuildContext context) {
+    final courseState = context.watch<CourseState>();
+    final isFavorite = courseState.isFavorite(course.code);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Course Detail')),
       body: Padding(
@@ -875,45 +871,98 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               '$studentId - $studentName',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 20),
-
             Text(
-              widget.course.title,
+              course.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 12),
-
-            Text('Code: ${widget.course.code}'),
-            Text('Credits: ${widget.course.credits} SKS'),
-            Text('Status: ${widget.course.status}'),
-
+            Text('Code: ${course.code}'),
+            Text('Credits: ${course.credits} SKS'),
+            Text('Status: ${course.status}'),
             const SizedBox(height: 20),
-
-            // LOCAL STATE - FAVORITE
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
-                setState(() {
-                  isFavorite = !isFavorite;
-                });
+                courseState.toggleFavorite(course.code);
               },
-              child: Text(
-                isFavorite ? '❤️ Sudah Favorite' : '♡ Pilih/Favorite',
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: Colors.red,
               ),
+              label: Text(isFavorite ? 'Sudah Favorite' : 'Tambah ke Favorite'),
             ),
-
             const SizedBox(height: 10),
-
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Text('Kembali'),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  const FavoritesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final courseState = context.watch<CourseState>();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Favorite Courses')),
+      body: courseState.favorites.isEmpty
+          ? const Center(child: Text('Belum ada course favorite.'))
+          : FutureBuilder<List<Course>>(
+              future: courseState.getCourses(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return const Center(child: Text('Gagal memuat course.'));
+                }
+
+                final favoriteCourses = (snapshot.data ?? <Course>[])
+                    .where((course) => courseState.isFavorite(course.code))
+                    .toList();
+
+                if (favoriteCourses.isEmpty) {
+                  return const Center(
+                    child: Text('Belum ada course favorite.'),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: favoriteCourses.length,
+                  itemBuilder: (context, index) {
+                    final course = favoriteCourses[index];
+
+                    return ListTile(
+                      leading: const Icon(Icons.favorite, color: Colors.red),
+                      title: Text(course.title),
+                      subtitle: Text('${course.code} • ${course.credits} SKS'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.favorite_border),
+                        onPressed: () {
+                          courseState.toggleFavorite(course.code);
+                        },
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CourseDetailPage(course: course),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }
@@ -1357,19 +1406,23 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int selectedIndex = 0;
 
-  final List<Widget> pages = const [HomeTab(), CoursesTab(), ProfileTab()];
+  final List<Widget> pages = const [
+    HomeTab(),
+    CoursesTab(),
+    FavoritesPage(),
+    ProfileTab(),
+  ];
 
   Widget buildNavigationBar() {
     return NavigationBar(
       selectedIndex: selectedIndex,
       onDestinationSelected: (index) {
-        setState(() {
-          selectedIndex = index;
-        });
+        setState(() => selectedIndex = index);
       },
       destinations: const [
         NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
         NavigationDestination(icon: Icon(Icons.school), label: 'Courses'),
+        NavigationDestination(icon: Icon(Icons.favorite), label: 'Favorites'),
         NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );
@@ -1379,9 +1432,7 @@ class _MainNavigationState extends State<MainNavigation> {
     return NavigationRail(
       selectedIndex: selectedIndex,
       onDestinationSelected: (index) {
-        setState(() {
-          selectedIndex = index;
-        });
+        setState(() => selectedIndex = index);
       },
       labelType: NavigationRailLabelType.all,
       destinations: const [
@@ -1389,6 +1440,10 @@ class _MainNavigationState extends State<MainNavigation> {
         NavigationRailDestination(
           icon: Icon(Icons.school),
           label: Text('Courses'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.favorite),
+          label: Text('Favorites'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.person),
@@ -1402,7 +1457,6 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // COMPACT / MEDIUM
         if (constraints.maxWidth < 840) {
           return Scaffold(
             body: pages[selectedIndex],
@@ -1410,7 +1464,6 @@ class _MainNavigationState extends State<MainNavigation> {
           );
         }
 
-        // EXPANDED
         return Scaffold(
           body: Row(
             children: [
@@ -1845,24 +1898,26 @@ class _CoursesTabState extends State<CoursesTab> {
                                           ),
                                         ),
 
-                                        // FAVORITE
+                                        // FAVORITE - TAHAP 13
+                                        // Made Wilasih - 2415051088
                                         IconButton(
                                           onPressed: () {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  '${course.title} dipilih sebagai favorite',
-                                                ),
-                                              ),
+                                            courseState.toggleFavorite(
+                                              course.code,
                                             );
                                           },
-                                          icon: const Icon(
-                                            Icons.favorite_border,
+                                          icon: Icon(
+                                            courseState.isFavorite(course.code)
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
                                             color: Colors.red,
-                                          ), // TAHAP 16 - KASUS A: RENDERFLEX OVERFLOW
-                                          tooltip: 'Favorite',
+                                          ),
+                                          tooltip:
+                                              courseState.isFavorite(
+                                                course.code,
+                                              )
+                                              ? 'Hapus dari favorite'
+                                              : 'Tambah ke favorite',
                                         ),
                                       ],
                                     ),
