@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 
 import 'course_state.dart';
+import 'models/course.dart';
 
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
@@ -1508,9 +1509,12 @@ class _CoursesTabState extends State<CoursesTab> {
               child: Text('Gagal memuat course: ${snapshot.error}'),
             );
           }
-
+          //Made Wilasih - 2415051088
           final data = snapshot.data!;
           final courses = data['courses'] as List<dynamic>;
+          final exampleCourse = Course.fromJson(
+            courses.first as Map<String, dynamic>,
+          );
 
           final filteredCourses = courses.where((courseData) {
             final course = courseData as Map<String, dynamic>;
@@ -1543,6 +1547,22 @@ class _CoursesTabState extends State<CoursesTab> {
                     ),
                   ),
 
+                  // Made Wilasih - 2415051088
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      child: ListTile(
+                        title: Text(exampleCourse.title),
+                        subtitle: Text(
+                          '${exampleCourse.code} • ${exampleCourse.credits} SKS • ${exampleCourse.status}',
+                        ),
+                        trailing: const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
+                  ),
                   // SEARCH
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
