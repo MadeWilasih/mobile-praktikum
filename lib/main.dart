@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import 'models/course.dart';
-import 'services/course_service.dart';
+import 'services/course_api_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'providers/course_state.dart';
@@ -66,7 +66,9 @@ Future<Map<String, dynamic>> loadStudentData() async {
 
 //Made WIlasih - 2415051088
 void main() {
-  final repository = CourseRepository(CourseService());
+  final repository = CourseRepository(
+    CourseApiService('https://course-api-pearl.vercel.app'),
+  );
 
   runApp(
     MultiProvider(
@@ -1543,10 +1545,15 @@ class CoursesTab extends StatefulWidget {
   State<CoursesTab> createState() => _CoursesTabState();
 }
 
-//Made Wilasih - 2415051088//
+// Made Wilasih - 2415051088
+
 class _CoursesTabState extends State<CoursesTab> {
   late Future<List<Course>> courseFuture;
-  final CourseService courseService = CourseService();
+
+  final CourseApiService courseService = CourseApiService(
+    'https://course-api-pearl.vercel.app',
+  );
+
   bool favorites = false;
   final ValueNotifier<int> favoriteCounter = ValueNotifier<int>(0);
   final TextEditingController searchController = TextEditingController();
