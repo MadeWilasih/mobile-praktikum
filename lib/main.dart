@@ -67,14 +67,16 @@ Future<Map<String, dynamic>> loadStudentData() async {
 //Made WIlasih - 2415051088
 void main() {
   final repository = CourseRepository(
-    CourseApiService('https://course-api-pearl.vercel.app'),
+    CourseApiService('https://course-api-pearl.vercel.app/'),
   );
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CourseState(repository)),
-        ChangeNotifierProvider(create: (_) => CourseProvider(repository)),
+        ChangeNotifierProvider(
+          create: (_) => CourseProvider(repository)..loadCourses(),
+        ),
       ],
       child: const MyApp(),
     ),

@@ -1,10 +1,11 @@
+// Made Wilasih - 2415051088
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/course.dart';
-import '../providers/course_state.dart';
+import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
-import '../widgets/loading_widget.dart';
+import '../widgets/error_view.dart';
 import 'course_detail_screen.dart';
 
 class CoursesScreen extends StatelessWidget {
@@ -12,39 +13,35 @@ class CoursesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<CourseState>();
+    final provider = context.watch<CourseProvider>();
 
-    return FutureBuilder<List<Course>>(
-      future: state.getCourses(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingWidget();
-        }
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        if (snapshot.hasError) {
-          return const Center(child: Text('Gagal memuat course.'));
-        }
-        final courses = snapshot.data ?? [];
+    if (provider.error != null) {
+      return ErrorView(message: provider.error!, onRetry: provider.loadCourses);
+    }
 
-        if (courses.isEmpty) {
-          return const Center(child: Text('Belum ada course.'));
-        }
+    if (provider.courses.isEmpty) {
+      return const Center(child: Text('Data course belum tersedia'));
+    }
 
-        return ListView.builder(
-          itemCount: courses.length,
-          itemBuilder: (context, index) {
-            final course = courses[index];
+    final courses = provider.courses;
 
-            return CourseCard(
-              course: course,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CourseDetailScreen(course: course),
-                  ),
-                );
-              },
+    return ListView.builder(
+      itemCount: courses.length,
+      itemBuilder: (context, index) {
+        final course = courses[index];
+
+        return CourseCard(
+          course: course,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CourseDetailScreen(course: course),
+              ),
             );
           },
         );
