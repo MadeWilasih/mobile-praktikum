@@ -28,3 +28,22 @@ samples, guidance on mobile development, and a full API reference.
 **Arah dependency:** Screen/Widget → Provider → Repository → Service/Data Source.
 
 UI untuk fitur Course Explorer tidak membaca file JSON secara langsung, melainkan menggunakan lapisan Repository dan Service.
+
+## REST API 
+## Made WIlasih -2415051088
+
+Aplikasi menggunakan Course API untuk mengambil data mata kuliah.
+
+- **Base URL:** https://course-api-pearl.vercel.app
+- **Endpoint:** `/courses`
+- **HTTP Method:** GET
+- **Resource:** Courses
+- **Status Code:** 200 OK
+
+**Field JSON yang ditemukan:**
+1. `id`: ID mata kuliah.
+2. `code`: Kode mata kuliah.
+3. `title`: Judul mata kuliah.
+4. `credits`: Jumlah kredit.
+5. `status`: Status mata kuliah.
+6. `created_at`: Waktu data dibuat.
