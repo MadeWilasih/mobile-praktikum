@@ -1,3 +1,5 @@
+// Made Wilasih - 2415051088
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +20,9 @@ class CourseCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(course.title),
-        subtitle: Text('${course.code} • ${course.credits} SKS'),
+        subtitle: Text(
+          '${course.code} • ${course.credits} SKS • Status: ${course.status}',
+        ),
         trailing: IconButton(
           icon: Icon(
             favorite ? Icons.favorite : Icons.favorite_border,

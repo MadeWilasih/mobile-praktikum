@@ -1,19 +1,25 @@
-//Made Wilasih - 2415051088
+// Made Wilasih - 2415051088
+
 import 'dart:convert';
 
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
 
 import '../models/course.dart';
 
 class CourseService {
+  static const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
+
   Future<List<Course>> loadCourses() async {
-    final jsonString = await rootBundle.loadString(
-      'assets/data/student_data.json',
-    );
+    final response = await http.get(Uri.parse(apiUrl));
 
-    final data = jsonDecode(jsonString) as Map<String, dynamic>;
-    final list = data['courses'] as List<dynamic>;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List<dynamic>;
 
-    return list.map((e) => Course.fromJson(e as Map<String, dynamic>)).toList();
+      return data
+          .map((item) => Course.fromJson(item as Map<String, dynamic>))
+          .toList();
+    }
+
+    throw Exception('Gagal memuat courses. HTTP ${response.statusCode}');
   }
 }
