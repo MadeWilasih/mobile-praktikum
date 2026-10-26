@@ -1,4 +1,5 @@
-//Made Wilasih - 2415051088
+// Made Wilasih - 2415051088
+
 import 'package:flutter/foundation.dart';
 
 import '../models/course.dart';
@@ -11,6 +12,7 @@ class CourseProvider extends ChangeNotifier {
 
   List<Course> courses = [];
   bool isLoading = false;
+  bool isSaving = false;
   String? error;
 
   Future<void> loadCourses() async {
@@ -24,6 +26,27 @@ class CourseProvider extends ChangeNotifier {
       error = e.toString();
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Course> createCourse(Course course) async {
+    if (isSaving) {
+      throw StateError('Penyimpanan course sedang berlangsung.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      final createdCourse = await repository.createCourse(course);
+
+      // Muat ulang daftar setelah pembuatan berhasil.
+      await loadCourses();
+
+      return createdCourse;
+    } finally {
+      isSaving = false;
       notifyListeners();
     }
   }
