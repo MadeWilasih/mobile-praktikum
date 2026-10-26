@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'models/course.dart';
 import 'services/course_api_service.dart';
@@ -20,10 +21,32 @@ const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
 
 // Made Wilasih - 2415051088
-const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
 
+const String supabaseUrl = 'https://buwdgjetjqyuslbwzksl.supabase.co';
+const String supabasePublishableKey =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1d2RnamV0anF5dXNsYnd6a3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5OTE1ODIsImV4cCI6MjEwODU2NzU4Mn0.PjlxAZ9rk4Jq2GqgCn20QprJ3t2SayoF0AUz7kBTNJM';
+
+const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
+
+// List Topics (Menggunakan studentId dan studentName yang sudah ada di bagian atas file Anda)
+final List<Map<String, dynamic>> topics = [
+  {'title': 'Git & GitHub', 'subtitle': 'Version control', 'done': true},
+  {'title': 'Dart Fundamentals', 'subtitle': 'Language basics', 'done': true},
+  {
+    'title': 'Flutter UI Fundamentals',
+    'subtitle': 'Widgets & layout',
+    'done': false,
+  },
+  {
+    'title': '$studentId\n$studentName',
+    'subtitle': 'Pemilik aplikasi',
+    'done': false,
+  },
+];
+
+// Helper Functions
 Future<List<dynamic>> fetchCourses() async {
-  final response = await http.get(Uri.parse(apiUrl));
+  final response = await http.get(Uri.parse(apiBaseUrl));
 
   if (response.statusCode == 200) {
     return jsonDecode(response.body) as List<dynamic>;
@@ -41,21 +64,6 @@ Future<void> testFetchCourses() async {
   }
 }
 
-final List<Map<String, dynamic>> topics = [
-  {'title': 'Git & GitHub', 'subtitle': 'Version control', 'done': true},
-  {'title': 'Dart Fundamentals', 'subtitle': 'Language basics', 'done': true},
-  {
-    'title': 'Flutter UI Fundamentals',
-    'subtitle': 'Widgets & layout',
-    'done': false,
-  },
-  {
-    'title': '$studentId - $studentName',
-    'subtitle': 'Pemilik aplikasi',
-    'done': false,
-  },
-];
-
 Future<Map<String, dynamic>> loadStudentData() async {
   final jsonString = await rootBundle.loadString(
     'assets/data/student_data.json',
@@ -64,12 +72,20 @@ Future<Map<String, dynamic>> loadStudentData() async {
   return jsonDecode(jsonString) as Map<String, dynamic>;
 }
 
-//Made WIlasih - 2415051088
-void main() {
-  final repository = CourseRepository(
-    CourseApiService('https://course-api-pearl.vercel.app'),
+// FUNGSI MAIN UTAMA
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Supabase Client
+  await Supabase.initialize(
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
   );
 
+  // Perakitan Repository
+  final repository = CourseRepository(CourseApiService(apiBaseUrl));
+
+  // Running App dengan MultiProvider
   runApp(
     MultiProvider(
       providers: [
