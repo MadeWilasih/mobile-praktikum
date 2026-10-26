@@ -15,4 +15,9 @@ class CourseRepository {
   Future<Course> createCourse(Course course) {
     return service.createCourse(course);
   }
+
+  // Tambahan untuk update course pada Tahap 7
+  Future<void> updateCourse(int id, Course course) {
+    return service.updateCourse(id, course);
+  }
 }

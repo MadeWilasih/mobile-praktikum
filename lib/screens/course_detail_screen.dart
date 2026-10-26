@@ -1,8 +1,11 @@
+// Made Wilasih - 2415051088
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/course.dart';
 import '../providers/course_state.dart';
+import 'edit_course_screen.dart'; // <-- Pastikan import halaman edit
 
 class CourseDetailScreen extends StatelessWidget {
   final Course course;
@@ -15,7 +18,23 @@ class CourseDetailScreen extends StatelessWidget {
     final favorite = state.isFavorite(course.code);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Course Detail')),
+      appBar: AppBar(
+        title: const Text('Course Detail'),
+        actions: [
+          // Tambahan tombol edit di AppBar
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditCourseScreen(course: course),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

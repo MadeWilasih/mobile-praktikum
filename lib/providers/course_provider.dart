@@ -50,4 +50,23 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> updateCourse(int id, Course course) async {
+    if (isSaving) {
+      throw StateError('Penyimpanan course sedang berlangsung.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      await repository.updateCourse(id, course);
+
+      // Muat ulang daftar setelah pembaruan berhasil.
+      await loadCourses();
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
 }
