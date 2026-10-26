@@ -69,4 +69,27 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> deleteCourse(int id) async {
+    if (isSaving) {
+      throw StateError('Proses sedang berlangsung.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      await repository.deleteCourse(id);
+
+      // Hapus dari list lokal courses
+      courses.removeWhere((course) => course.id == id);
+
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Gagal menghapus course: $e');
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
 }

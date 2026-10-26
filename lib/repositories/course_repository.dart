@@ -20,4 +20,9 @@ class CourseRepository {
   Future<void> updateCourse(int id, Course course) {
     return service.updateCourse(id, course);
   }
+
+  // Tambahan untuk delete course pada Tahap 8
+  Future<void> deleteCourse(int id) async {
+    await service.deleteCourse(id);
+  }
 }
