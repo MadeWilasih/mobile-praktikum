@@ -5,12 +5,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/course.dart';
+import 'course_data_source.dart'; // <-- TAMBAHKAN INI
 
-class CourseApiService {
+class CourseApiService implements CourseDataSource {
+  // <-- UBAH JADI IMPLEMENTS
   CourseApiService(this.baseUrl);
 
   final String baseUrl;
 
+  @override // <-- TAMBAHKAN INI
   Future<List<Course>> getCourses() async {
     final response = await http.get(Uri.parse('$baseUrl/courses'));
 
@@ -25,6 +28,7 @@ class CourseApiService {
         .toList();
   }
 
+  @override // <-- TAMBAHKAN INI
   Future<Course> createCourse(Course course) async {
     final response = await http.post(
       Uri.parse('$baseUrl/courses'),
@@ -44,10 +48,10 @@ class CourseApiService {
     );
   }
 
+  @override // <-- TAMBAHKAN INI
   Future<void> updateCourse(int id, Course course) async {
     final bodyJson = jsonEncode(course.toJson());
 
-    // Debugging print untuk mengecek data yang dikirim ke server
     print('DATA YANG DIKIRIM KE SERVER: $bodyJson');
 
     final response = await http.put(
@@ -64,6 +68,7 @@ class CourseApiService {
     }
   }
 
+  @override // <-- TAMBAHKAN INI
   Future<void> deleteCourse(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/courses/$id'));
 

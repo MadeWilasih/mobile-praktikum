@@ -1,28 +1,20 @@
 // Made Wilasih - 2415051088
 
 import '../models/course.dart';
-import '../services/course_api_service.dart';
+import '../services/course_data_source.dart'; // <-- Ganti import service dengan data source
 
 class CourseRepository {
-  final CourseApiService service;
+  final CourseDataSource
+  dataSource; // <-- Ubah dari CourseApiService ke CourseDataSource
 
-  CourseRepository(this.service);
+  CourseRepository(this.dataSource);
 
-  Future<List<Course>> getCourses() {
-    return service.getCourses();
-  }
+  Future<List<Course>> getCourses() => dataSource.getCourses();
 
-  Future<Course> createCourse(Course course) {
-    return service.createCourse(course);
-  }
+  Future<Course> createCourse(Course course) => dataSource.createCourse(course);
 
-  // Tambahan untuk update course pada Tahap 7
-  Future<void> updateCourse(int id, Course course) {
-    return service.updateCourse(id, course);
-  }
+  Future<void> updateCourse(int id, Course course) =>
+      dataSource.updateCourse(id, course);
 
-  // Tambahan untuk delete course pada Tahap 8
-  Future<void> deleteCourse(int id) async {
-    await service.deleteCourse(id);
-  }
+  Future<void> deleteCourse(int id) => dataSource.deleteCourse(id);
 }
