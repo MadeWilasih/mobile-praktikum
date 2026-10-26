@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'models/course.dart';
 import 'services/course_api_service.dart';
+import 'services/course_supabase_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'providers/course_state.dart';
@@ -82,8 +83,8 @@ Future<void> main() async {
     publishableKey: supabasePublishableKey,
   );
 
-  // Perakitan Repository
-  final repository = CourseRepository(CourseApiService(apiBaseUrl));
+  // Perakitan Repository menggunakan Supabase Service
+  final repository = CourseRepository(CourseSupabaseService());
 
   // Running App dengan MultiProvider
   runApp(
