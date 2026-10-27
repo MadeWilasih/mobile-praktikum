@@ -16,8 +16,7 @@ class CoursesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<CourseProvider>();
 
-    final Widget content;
-
+    Widget content;
     if (provider.isLoading) {
       content = const Center(child: CircularProgressIndicator());
     } else if (provider.error != null) {
@@ -28,52 +27,50 @@ class CoursesScreen extends StatelessWidget {
     } else if (provider.courses.isEmpty) {
       content = const Center(child: Text('Data course belum tersedia'));
     } else {
-      final courses = provider.courses;
-
       content = ListView.builder(
-        itemCount: courses.length,
+        itemCount: provider.courses.length,
         itemBuilder: (context, index) {
-          final course = courses[index];
-
+          final course = provider.courses[index];
           return CourseCard(
             course: course,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CourseDetailScreen(course: course),
-                ),
-              );
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CourseDetailScreen(course: course),
+              ),
+            ),
           );
         },
       );
     }
 
-    // Bungkus dengan SafeArea agar otomatis turun di bawah status bar/kamera
     return SafeArea(
       child: Column(
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                12,
-                16,
-                8,
-              ), // Diberi jarak atas & samping yang lebih pas
+          Container(
+            width: double.infinity,
+            color: Colors.blue,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: const Text(
+              'Made Wilasih - 2415051088',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Align(
+              alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.add),
                 label: const Text('Tambah Course'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CreateCourseScreen(),
-                    ),
-                  );
-                },
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CreateCourseScreen()),
+                ),
               ),
             ),
           ),
