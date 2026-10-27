@@ -6,7 +6,7 @@ import 'course_data_source.dart';
 // Dibuat oleh: Made Wilasih - 2415051088
 class CourseSupabaseService implements CourseDataSource {
   final supabase = Supabase.instance.client;
-
+  //salahkan salah satu code
   @override
   Future<List<Course>> getCourses() async {
     final data = await supabase.from('courses').select().order('id');
