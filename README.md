@@ -32,7 +32,7 @@ UI untuk fitur Course Explorer tidak membaca file JSON secara langsung, melainka
 ## REST API 
 ## Made WIlasih -2415051088
 
-Aplikasi menggunakan Course API untuk mengambil data mata kuliah.
+Aplikasi menggunakan CourseAPI untuk mengambil data mata kuliah.
 
 - **Base URL:** https://course-api-pearl.vercel.app
 - **Endpoint:** `/courses`
