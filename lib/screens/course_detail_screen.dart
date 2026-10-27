@@ -69,16 +69,21 @@ class CourseDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Course Detail'),
         actions: [
-          // Tombol Edit di AppBar
+          // Tombol Edit di AppBar (Sudah direvisi agar merefresh list setelah edit)
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => EditCourseScreen(course: course),
                 ),
               );
+
+              // Jika berhasil diperbarui, kembali ke halaman sebelumnya untuk refresh list
+              if (result == true && context.mounted) {
+                Navigator.pop(context, true);
+              }
             },
           ),
           // Tambahan Tombol Delete (Ikon Sampah) di AppBar

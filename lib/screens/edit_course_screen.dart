@@ -68,7 +68,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Course berhasil diperbarui')),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) {
         return;
