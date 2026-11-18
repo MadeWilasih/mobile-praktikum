@@ -17,6 +17,10 @@ import 'screens/courses_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/profile_screen.dart';
 
+import 'app_keys.dart';
+import 'pages/home_page.dart';
+import 'services/auth_service.dart';
+
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
 
@@ -56,6 +60,17 @@ Future<void> main() async {
     publishableKey: supabasePublishableKey,
   );
 
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    debugPrint('Auth event: ${data.event}');
+
+    if (data.event == AuthChangeEvent.signedOut) {
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (route) => false,
+      );
+    }
+  });
+
   final repository = CourseRepository(CourseSupabaseService());
 
   runApp(
@@ -66,7 +81,7 @@ Future<void> main() async {
           create: (_) => CourseProvider(repository)..loadCourses(),
         ),
       ],
-      child: const MyApp(),
+      child: const KosFinderApp(),
     ),
   );
 }
@@ -2227,8 +2242,8 @@ class ProfileTab extends StatelessWidget {
 }
 
 // MY APP
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class KosFinderApp extends StatelessWidget {
+  const KosFinderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -2236,7 +2251,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'KosFinder',
       theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      home: const LoginPage(),
+      navigatorKey: navigatorKey,
+      scaffoldMessengerKey: messengerKey,
+      home: AuthService.instance.isLoggedIn
+          ? const HomePage()
+          : const LoginPage(),
     );
   }
 }
