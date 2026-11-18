@@ -3,15 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'models/course.dart';
-import 'services/course_api_service.dart';
 import 'services/course_supabase_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'providers/course_state.dart';
+import 'pages/login_page.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/courses_screen.dart';
@@ -21,15 +20,10 @@ import 'screens/profile_screen.dart';
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
 
-// Made Wilasih - 2415051088
-
 const String supabaseUrl = 'https://buwdgjetjqyuslbwzksl.supabase.co';
 const String supabasePublishableKey =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1d2RnamV0anF5dXNsYnd6a3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5OTE1ODIsImV4cCI6MjEwODU2NzU4Mn0.PjlxAZ9rk4Jq2GqgCn20QprJ3t2SayoF0AUz7kBTNJM';
 
-const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
-
-// List Topics (Menggunakan studentId dan studentName yang sudah ada di bagian atas file Anda)
 final List<Map<String, dynamic>> topics = [
   {'title': 'Git & GitHub', 'subtitle': 'Version control', 'done': true},
   {'title': 'Dart Fundamentals', 'subtitle': 'Language basics', 'done': true},
@@ -39,31 +33,11 @@ final List<Map<String, dynamic>> topics = [
     'done': false,
   },
   {
-    'title': '$studentId\n$studentName',
+    'title': '$studentId - $studentName',
     'subtitle': 'Pemilik aplikasi',
     'done': false,
   },
 ];
-
-// Helper Functions
-Future<List<dynamic>> fetchCourses() async {
-  final response = await http.get(Uri.parse(apiBaseUrl));
-
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body) as List<dynamic>;
-  }
-
-  throw Exception('HTTP ${response.statusCode}');
-}
-
-Future<void> testFetchCourses() async {
-  try {
-    final courses = await fetchCourses();
-    debugPrint('Jumlah mata kuliah: ${courses.length}');
-  } catch (e) {
-    debugPrint('Gagal mengambil data: $e');
-  }
-}
 
 Future<Map<String, dynamic>> loadStudentData() async {
   final jsonString = await rootBundle.loadString(
@@ -73,20 +47,17 @@ Future<Map<String, dynamic>> loadStudentData() async {
   return jsonDecode(jsonString) as Map<String, dynamic>;
 }
 
-// FUNGSI MAIN UTAMA
+//Made WIlasih - 2415051088
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Supabase Client
   await Supabase.initialize(
     url: supabaseUrl,
     publishableKey: supabasePublishableKey,
   );
-  //Made Wilasih - 2415051088
-  // Perakitan Repository menggunakan Supabase Service
+
   final repository = CourseRepository(CourseSupabaseService());
 
-  // Running App dengan MultiProvider
   runApp(
     MultiProvider(
       providers: [
@@ -830,8 +801,8 @@ class ProfileForm extends StatelessWidget {
 
 // TAHAP 7 - NAVIGATOR PUSH DAN POP
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class LegacyHomePage extends StatelessWidget {
+  const LegacyHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1455,12 +1426,6 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    testFetchCourses();
-  }
-
   final List<Widget> pages = const [
     HomeScreen(),
     CoursesScreen(),
@@ -1564,15 +1529,10 @@ class CoursesTab extends StatefulWidget {
   State<CoursesTab> createState() => _CoursesTabState();
 }
 
-// Made Wilasih - 2415051088
-
+//Made Wilasih - 2415051088//
 class _CoursesTabState extends State<CoursesTab> {
   late Future<List<Course>> courseFuture;
-
-  final CourseApiService courseService = CourseApiService(
-    'https://course-api-pearl.vercel.app',
-  );
-
+  final CourseSupabaseService courseService = CourseSupabaseService();
   bool favorites = false;
   final ValueNotifier<int> favoriteCounter = ValueNotifier<int>(0);
   final TextEditingController searchController = TextEditingController();
@@ -1775,7 +1735,6 @@ class _CoursesTabState extends State<CoursesTab> {
 
                   const SizedBox(height: 8),
 
-                  // JUMLAH COURSE
                   // JUMLAH COURSE
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -2275,18 +2234,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-        ),
-      ),
-
-      home: const MainNavigation(),
+      title: 'KosFinder',
+      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
+      home: const LoginPage(),
     );
   }
 }
