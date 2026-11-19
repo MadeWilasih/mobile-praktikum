@@ -21,6 +21,10 @@ import 'app_keys.dart';
 import 'pages/home_page.dart';
 import 'services/auth_service.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+
+import 'firebase_options.dart';
+
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
 
@@ -54,6 +58,8 @@ Future<Map<String, dynamic>> loadStudentData() async {
 //Made WIlasih - 2415051088
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Supabase.initialize(
     url: supabaseUrl,
