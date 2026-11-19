@@ -7,7 +7,7 @@ import '../widgets/role_guard.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/kos_service.dart';
-import '../services/notification_service.dart'; // BARU (Praktik 8)
+import '../services/notification_service.dart'; // Praktik 8-10
 import '../services/security_test.dart';
 import 'kos_list_page.dart';
 import 'login_page.dart';
@@ -26,23 +26,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _profileFuture = ProfileService().getMyProfile();
-    _setupNotifications(); // Praktik 8 + 9
-  }
-
-  // BARU (Praktik 8 + 9): izin notifikasi, ambil token, simpan token
-  Future<void> _setupNotifications() async {
-    final ns = NotificationService.instance;
-
-    // Praktik 8: izin notifikasi
-    final status = await ns.requestPermission();
-    _snack('Status notifikasi: ${status.name}');
-
-    // Praktik 9: ambil token (tampil di Debug Console)
-    final token = await ns.getToken();
-
-    // Opsional: simpan token ke Supabase (hapus 2 baris ini kalau tidak dipakai)
-    if (token != null) await ns.saveTokenToSupabase(token);
-    ns.listenTokenRefresh((t) => ns.saveTokenToSupabase(t));
+    // Praktik 10: izin + token + listener notifikasi foreground
+    NotificationService.instance.init();
   }
 
   Future<void> _logout() async {

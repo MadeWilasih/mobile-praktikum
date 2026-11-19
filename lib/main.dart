@@ -25,6 +25,10 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'services/notification_service.dart';
+
 const String studentName = 'Made Wilasih';
 const String studentId = '2415051088';
 
@@ -60,6 +64,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(
+    firebaseMessagingBackgroundHandler,
+  ); // <-- BARU
 
   await Supabase.initialize(
     url: supabaseUrl,
