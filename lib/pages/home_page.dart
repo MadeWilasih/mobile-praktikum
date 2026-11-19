@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
 import '../widgets/role_guard.dart';
+import 'kos_list_page.dart'; // <-- BARU
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -66,9 +67,14 @@ class _HomePageState extends State<HomePage> {
                 subtitle: Text('${p.email} • ${p.role}'),
               ),
               const Divider(),
-              const ListTile(
-                leading: Icon(Icons.list),
-                title: Text('Daftar Kos'),
+              // BARU: const dilepas, ditambah onTap ke KosListPage
+              ListTile(
+                leading: const Icon(Icons.list),
+                title: const Text('Daftar Kos'),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const KosListPage()),
+                ),
               ),
               if (p.isOwner || p.isAdmin)
                 const ListTile(
