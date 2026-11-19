@@ -7,6 +7,7 @@ import '../widgets/role_guard.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/kos_service.dart';
+import '../services/notification_service.dart'; // BARU (Praktik 8)
 import '../services/security_test.dart';
 import 'kos_list_page.dart';
 import 'login_page.dart';
@@ -25,6 +26,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _profileFuture = ProfileService().getMyProfile();
+    // BARU (Praktik 8): minta izin notifikasi, tampilkan statusnya
+    NotificationService.instance.requestPermission().then((status) {
+      _snack('Status notifikasi: ${status.name}');
+    });
   }
 
   Future<void> _logout() async {
