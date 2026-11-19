@@ -4,7 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/kos_service.dart';
 
 class KosListPage extends StatefulWidget {
-  const KosListPage({super.key});
+  final bool openAddOnStart;
+  const KosListPage({super.key, this.openAddOnStart = false});
 
   @override
   State<KosListPage> createState() => _KosListPageState();
@@ -19,6 +20,9 @@ class _KosListPageState extends State<KosListPage> {
   void initState() {
     super.initState();
     _future = _service.fetchAll();
+    if (widget.openAddOnStart) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _openForm());
+    }
   }
 
   void _reload() => setState(() => _future = _service.fetchAll());
